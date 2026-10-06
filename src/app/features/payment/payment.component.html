@@ -1,0 +1,104 @@
+<div class="container-page pb-12 pt-8">
+  <h1 class="mb-1">Paiement</h1>
+  <p class="mb-6 text-ink-600">Étape 2 sur 2 — commande <span class="font-medium text-ink">{{ reference() }}</span></p>
+
+  @switch (state()) {
+    @case ('unpayable') {
+      <div class="card max-w-xl p-6">
+        <p class="mb-4 text-ink-700">{{ fatalMessage() }}</p>
+        <div class="flex flex-wrap gap-3">
+          <a routerLink="/commande" class="btn-primary">Repasser commande</a>
+          <a routerLink="/" fragment="participer" class="btn-secondary">Voir les packs</a>
+        </div>
+      </div>
+    }
+    @case ('expired') {
+      <div class="card max-w-xl p-6">
+        <h2 class="mb-2 text-xl">Délai de réservation dépassé</h2>
+        <p class="mb-4 text-ink-700">
+          Vos articles étaient réservés pendant 30 minutes. Votre panier est conservé : il suffit de repasser commande.
+        </p>
+        <a routerLink="/commande" class="btn-primary">Repasser commande</a>
+      </div>
+    }
+    @default {
+      <div class="grid gap-6 lg:grid-cols-[1fr_340px]">
+        <!-- Récap (mobile en premier) -->
+        <aside class="order-first lg:order-last" aria-labelledby="recap-paiement">
+          <div class="card p-5 lg:sticky lg:top-24">
+            <h2 id="recap-paiement" class="mb-3 text-lg">Votre commande</h2>
+            @if (session(); as s) {
+              <dl class="space-y-1.5 text-sm">
+                <div class="flex justify-between"><dt class="text-ink-600">Packs</dt><dd class="tabular-nums">{{ formatEuros(s.itemsCents) }}</dd></div>
+                <div class="flex justify-between"><dt class="text-ink-600">Livraison</dt><dd class="tabular-nums">{{ formatEuros(s.shippingCents) }}</dd></div>
+                <div class="flex justify-between border-t border-line pt-2 text-base font-semibold"><dt>Total</dt><dd class="tabular-nums">{{ formatEuros(s.totalCents) }}</dd></div>
+                <div class="flex justify-between text-ink-600"><dt>Participations au tirage</dt><dd class="font-semibold text-ink">{{ s.chances }}</dd></div>
+              </dl>
+              <p class="mt-3 rounded-lg bg-go-50 px-3 py-2 text-xs text-go-700">
+                Dont {{ formatEuros(associationCents()) }} reversés à l’association {{ game.associationName() }}.
+              </p>
+              <p class="mt-3 flex items-center gap-2 text-sm" [class.text-[#B42318]]="lowTime()" [class.text-ink-600]="!lowTime()" role="timer" aria-live="off">
+                <lucide-icon [img]="icClock" [size]="16" aria-hidden="true" />
+                Articles réservés encore <span class="font-semibold tabular-nums">{{ remainingLabel() }}</span>
+              </p>
+            } @else {
+              <div class="h-28 animate-pulse rounded-lg bg-ink-100" aria-hidden="true"></div>
+            }
+          </div>
+        </aside>
+
+        <section class="card p-5 sm:p-6" aria-labelledby="titre-paiement">
+          <h2 id="titre-paiement" class="mb-4 flex items-center gap-2 text-xl">
+            <lucide-icon [img]="icLock" [size]="18" class="text-go-700" aria-hidden="true" /> Paiement sécurisé
+          </h2>
+
+          @if (state() === 'failed') {
+            <div class="alert-error" role="alert">{{ fatalMessage() }}</div>
+            <button type="button" class="btn-secondary mt-4" (click)="reload()">Recharger la page</button>
+          } @else {
+            <!-- Apple Pay / Google Pay -->
+            <div [class.hidden]="!expressAvailable()">
+              <div #expressHost></div>
+              <div class="my-5 flex items-center gap-3 text-xs uppercase tracking-wide text-ink-400" aria-hidden="true">
+                <span class="h-px flex-1 bg-line"></span> ou par carte bancaire <span class="h-px flex-1 bg-line"></span>
+              </div>
+            </div>
+
+            @if (!fieldsReady()) {
+              <div class="space-y-3" aria-hidden="true">
+                <div class="h-11 animate-pulse rounded-[10px] bg-ink-100"></div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="h-11 animate-pulse rounded-[10px] bg-ink-100"></div>
+                  <div class="h-11 animate-pulse rounded-[10px] bg-ink-100"></div>
+                </div>
+              </div>
+              <p class="sr-only" role="status">Chargement du formulaire de paiement…</p>
+            }
+            <div #paymentHost class="min-h-[10px]"></div>
+
+            @if (error()) {
+              <div class="alert-error mt-4" role="alert">{{ error() }}</div>
+            }
+
+            <button type="button" class="btn-primary mt-5 w-full text-base" [disabled]="!fieldsReady() || paying() || state() !== 'ready'" (click)="confirm()">
+              @if (paying()) {
+                <lucide-icon [img]="icLoader" [size]="18" class="spin" aria-hidden="true" /> Paiement en cours…
+              } @else {
+                <lucide-icon [img]="icLock" [size]="17" aria-hidden="true" /> Payer {{ session() ? formatEuros(session()!.totalCents) : '' }}
+              }
+            </button>
+
+            <p class="mt-4 flex items-start gap-2 text-xs text-ink-500">
+              <lucide-icon [img]="icShield" [size]="15" class="mt-0.5 shrink-0" aria-hidden="true" />
+              Connexion chiffrée. Vos coordonnées bancaires ne transitent pas par nos serveurs et ne sont jamais conservées.
+              Votre banque peut vous demander une confirmation (3-D Secure).
+            </p>
+            <p class="mt-3 text-xs text-ink-500">
+              <a [routerLink]="['/paiement/annule']" [queryParams]="{ ref: reference() }">Annuler et revenir au panier</a>
+            </p>
+          }
+        </section>
+      </div>
+    }
+  }
+</div>

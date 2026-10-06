@@ -1,0 +1,119 @@
+<div class="container-page pb-6 pt-10">
+  <header class="max-w-2xl">
+    <p class="eyebrow mb-2">Le jeu</p>
+    <h1 class="mb-3">Un jeu solidaire, simple et contrôlé</h1>
+    <p class="text-lg text-ink-600">
+      Vous achetez un pack de produits (porte-clés, t-shirt, casquette). Chaque pack donne droit à un nombre défini de participations au
+      tirage au sort. {{ game.associationPercent() }} % du montant des packs vendus sont reversés à l’association {{ game.associationName() }}.
+    </p>
+  </header>
+
+  @if (game.game(); as g) {
+    <dl class="mt-8 grid gap-4 sm:grid-cols-3">
+      <div class="card p-5">
+        <dt class="text-sm text-ink-500">Ouverture</dt>
+        <dd class="font-display text-lg font-semibold">{{ formatDateTimeLong(g.startAt) }}</dd>
+      </div>
+      <div class="card p-5">
+        <dt class="text-sm text-ink-500">Fin des commandes</dt>
+        <dd class="font-display text-lg font-semibold">{{ formatDateTimeLong(g.endAt) }}</dd>
+      </div>
+      <div class="card p-5">
+        <dt class="text-sm text-ink-500">Tirage au sort</dt>
+        <dd class="font-display text-lg font-semibold">
+          @if (g.drawAt) { {{ formatDateLong(g.drawAt) }} } @else { <span class="badge-todo">Date à venir</span> }
+        </dd>
+      </div>
+    </dl>
+  }
+</div>
+
+<section class="container-page py-8" aria-labelledby="acteurs-titre">
+  <h2 id="acteurs-titre" class="mb-5">Qui fait quoi ?</h2>
+  <div class="grid gap-4 lg:grid-cols-3">
+    <article class="card p-5">
+      <lucide-icon [img]="icOrg" [size]="22" class="mb-3 text-ink" aria-hidden="true" />
+      <h3 class="mb-1">L’organisateur</h3>
+      <p class="mb-2 font-medium"><app-todo [value]="game.game()?.organizerName" hint="Nom de l’organisateur (back-office › Réglages)" /></p>
+      <p class="text-sm text-ink-600"><app-todo [value]="game.game()?.organizerDetails" [multiline]="true" /></p>
+      <p class="mt-3 text-sm text-ink-600">Il vend les packs, expédie les produits et organise le jeu dans le respect du règlement.</p>
+    </article>
+    <article class="card p-5">
+      <lucide-icon [img]="icGavel" [size]="22" class="mb-3 text-ink-600" aria-hidden="true" />
+      <h3 class="mb-1">Le commissaire de justice</h3>
+      <p class="mb-2 font-medium"><app-todo [value]="game.game()?.bailiffName" /></p>
+      <p class="text-sm text-ink-600"><app-todo [value]="game.game()?.bailiffDetails" [multiline]="true" /></p>
+      <p class="mt-3 text-sm text-ink-600">
+        Le règlement est déposé chez lui. À la clôture, il reçoit la liste figée et horodatée de toutes les participations (avec son
+        empreinte numérique) et réalise lui-même le tirage au sort.
+      </p>
+    </article>
+    <article class="card border-go-200 bg-go-50 p-5">
+      <lucide-icon [img]="icHeart" [size]="22" class="mb-3 text-go-700" aria-hidden="true" />
+      <h3 class="mb-1">L’association {{ game.associationName() }}</h3>
+      <p class="text-sm text-ink-700">
+        Elle reçoit {{ game.associationPercent() }} % du montant des packs vendus (hors frais de livraison), net des remboursements.
+        @if (game.game(); as g) {
+          Déjà <strong>{{ formatEuros(g.associationRaisedCents) }}</strong> collectés.
+        }
+      </p>
+    </article>
+  </div>
+</section>
+
+<section class="container-page py-8" aria-labelledby="asso-titre">
+  <div class="grid gap-8 rounded-card bg-white p-6 shadow-soft sm:p-8 lg:grid-cols-2">
+    <div>
+      <p class="eyebrow mb-2 !text-go-700">L’association</p>
+      <h2 id="asso-titre" class="mb-3">{{ game.associationName() }}</h2>
+      <p class="mb-3"><span class="badge-todo">À compléter</span></p>
+      <p class="text-ink-600">
+        <em>Texte provisoire.</em> Histoire de l’association, date de création, mission, territoires d’action, numéro RNA et
+        site internet : contenu à fournir par l’association.
+      </p>
+    </div>
+    <div>
+      <h3 class="mb-2">À quoi serviront les fonds ?</h3>
+      <p class="mb-3"><span class="badge-todo">À compléter</span></p>
+      <p class="text-ink-600">
+        <em>Texte provisoire.</em> Description des projets financés grâce aux {{ game.associationPercent() }} % reversés, et modalités de
+        versement (date, justificatif publié après le versement).
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="container-page py-8" aria-labelledby="deroulement-titre">
+  <h2 id="deroulement-titre" class="mb-5">Comment se déroule le jeu ?</h2>
+  <ol class="max-w-3xl space-y-4">
+    <li class="card p-5">
+      <h3 class="mb-1">1. Vous commandez un ou plusieurs packs</h3>
+      <p class="text-sm text-ink-600">
+        Sans créer de compte. Chaque pack donne droit à un nombre de participations indiqué sur sa fiche. Réservé aux personnes majeures
+        résidant en France métropolitaine.
+      </p>
+    </li>
+    <li class="card p-5">
+      <h3 class="mb-1">2. Vous recevez vos numéros de participation</h3>
+      <p class="text-sm text-ink-600">
+        Un numéro unique (par exemple TMB-000123) est attribué à chaque participation dès la confirmation du paiement. Ils vous sont envoyés
+        par e-mail et restent consultables depuis <a routerLink="/mes-participations">Mes participations</a>.
+      </p>
+    </li>
+    <li class="card p-5">
+      <h3 class="mb-1">3. Clôture et tirage</h3>
+      <p class="text-sm text-ink-600">
+        À la date de fin, la liste des participations est figée, horodatée et transmise au commissaire de justice avec son empreinte
+        numérique (SHA-256), qui garantit qu’elle n’a pas été modifiée. Le tirage est réalisé par le commissaire de justice.
+      </p>
+    </li>
+    <li class="card p-5">
+      <h3 class="mb-1">4. Les gagnants sont prévenus</h3>
+      <p class="text-sm text-ink-600">Par e-mail et/ou téléphone, selon les modalités prévues au <a routerLink="/reglement">règlement</a>.</p>
+    </li>
+  </ol>
+  <div class="mt-8 flex flex-wrap gap-3">
+    <a routerLink="/" fragment="participer" class="btn-primary">Participer</a>
+    <a routerLink="/reglement" class="btn-secondary">Lire le règlement</a>
+  </div>
+</section>

@@ -1,0 +1,92 @@
+<div class="container-page max-w-3xl pb-12 pt-10">
+  <p class="eyebrow mb-2">Mes participations</p>
+  @if (loading()) {
+    <div class="flex items-center gap-3 text-ink-600" role="status">
+      <lucide-icon [img]="icLoader" [size]="20" class="spin" aria-hidden="true" /> Chargement de vos commandes…
+    </div>
+  } @else if (error()) {
+    <p class="alert-error" role="alert">{{ error() }}</p>
+    <button type="button" class="btn-secondary mt-4" (click)="load()">Réessayer</button>
+  } @else {
+  @if (data(); as d) {
+    <h1 class="mb-1">Vos participations</h1>
+    <p class="mb-6 text-ink-600">
+      {{ d.email }} ·
+      <strong class="text-ink">{{ plural(d.totalValidEntries, 'participation valide', 'participations valides') }}</strong> au tirage
+    </p>
+
+    @if (!d.orders.length) {
+      <div class="card p-6">
+        <p class="text-ink-700">Aucune commande confirmée n’est associée à cette adresse.</p>
+        <a routerLink="/" fragment="participer" class="btn-primary mt-4">Découvrir les packs</a>
+      </div>
+    }
+
+    <ul class="space-y-5">
+      @for (order of d.orders; track order.reference) {
+        <li class="card p-5 sm:p-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 class="text-lg">Commande {{ order.reference }}</h2>
+              <p class="text-sm text-ink-500">Passée le {{ formatDate(order.createdAt) }}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span [class]="order.status === 'PAID' ? 'badge-go' : order.status === 'REFUNDED' ? 'badge-danger' : 'badge-ink'">
+                {{ statusLabels[order.status] }}
+              </span>
+              @if (order.status === 'PAID') {
+                <span [class]="order.shippingStatus === 'SHIPPED' ? 'badge-go' : 'badge-todo'">
+                  {{ order.shippingStatus === 'SHIPPED' ? 'Expédiée' : 'En préparation' }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <ul class="mt-4 divide-y divide-line text-sm">
+            @for (line of order.lines; track $index) {
+              <li class="flex justify-between gap-3 py-2">
+                <span>
+                  {{ line.packName }}
+                  @if (line.tshirtSizes.length) {
+                    <span class="text-ink-500">· t-shirt{{ line.tshirtSizes.length > 1 ? 's' : '' }} {{ line.tshirtSizes.join(' + ') }}</span>
+                  }
+                  <span class="text-ink-500">· {{ plural(line.chances, 'participation') }}</span>
+                </span>
+                <span class="tabular-nums">{{ formatEuros(line.unitPriceCents) }}</span>
+              </li>
+            }
+            <li class="flex justify-between py-2 font-semibold"><span>Total (livraison comprise)</span><span class="tabular-nums">{{ formatEuros(order.totalCents) }}</span></li>
+          </ul>
+
+          @if (order.trackingNumber) {
+            <p class="mt-2 flex items-center gap-2 text-sm text-ink-700">
+              <lucide-icon [img]="icTruck" [size]="16" aria-hidden="true" /> Numéro de suivi : <span class="font-mono">{{ order.trackingNumber }}</span>
+            </p>
+          }
+
+          @if (order.entries.length) {
+            <h3 class="mb-2 mt-5 text-sm font-semibold uppercase tracking-wide text-ink-500">
+              Numéros de participation ({{ validCount(order.entries) }})
+            </h3>
+            <ul class="flex flex-wrap gap-2">
+              @for (e of order.entries; track e.ticketNumber) {
+                <li
+                  class="rounded-lg border border-dashed px-3 py-1.5 font-mono text-sm font-semibold"
+                  [class]="e.status === 'VALID' ? 'border-ink bg-ink text-white' : 'border-ink-200 bg-ink-50 text-ink-400 line-through'"
+                  [attr.title]="e.status === 'VALID' ? null : 'Participation annulée'"
+                >
+                  {{ e.ticketNumber }}
+                </li>
+              }
+            </ul>
+          }
+        </li>
+      }
+    </ul>
+
+    <p class="mt-8 rounded-lg bg-go-50 px-4 py-3 text-sm text-go-700">
+      Merci ! {{ game.associationPercent() }} % du montant de vos packs est reversé à l’association {{ game.associationName() }}.
+    </p>
+  }
+}
+</div>

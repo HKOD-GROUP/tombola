@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /commande
+Disallow: /paiement
+Disallow: /mes-participations
+
+Sitemap: https://tombola.fr/sitemap.xml

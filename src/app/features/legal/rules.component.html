@@ -1,0 +1,119 @@
+<div class="container-page pb-6 pt-10">
+  <p class="eyebrow mb-2">Règlement</p>
+  <h1 class="mb-3">Règlement du jeu « {{ game.gameName() }} »</h1>
+
+  <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+    @if (game.game()?.rulesUrl) {
+      <a [href]="game.game()!.rulesUrl" target="_blank" rel="noopener" class="btn-primary">
+        <lucide-icon [img]="icFile" [size]="18" aria-hidden="true" /> Télécharger le règlement officiel (PDF)
+      </a>
+    }
+    <p class="text-sm text-ink-600">
+      Règlement déposé chez <app-todo [value]="game.game()?.bailiffName" />, commissaire de justice.
+    </p>
+  </div>
+
+  <p class="alert-info mb-8 max-w-[720px]">
+    <strong>Version provisoire.</strong> Le texte ci-dessous résume les règles du jeu ; seule la version déposée chez le commissaire de
+    justice fait foi. Les éléments marqués « À compléter » seront renseignés avant l’ouverture.
+  </p>
+
+  <article class="prose-legal">
+    <h2>Article 1 — Organisateur</h2>
+    <p>
+      Le jeu est organisé par <app-todo [value]="game.game()?.organizerName" />
+      (<app-todo [value]="game.game()?.organizerDetails" />), ci-après « l’Organisateur ».
+    </p>
+
+    <h2>Article 2 — Durée</h2>
+    @if (game.game(); as g) {
+      <p>
+        Le jeu est ouvert du <strong>{{ formatDateTimeLong(g.startAt) }}</strong> au <strong>{{ formatDateTimeLong(g.endAt) }}</strong>
+        (heure de Paris). La date et l’heure de création de la commande font foi : une commande créée avant la fin du jeu et dont le paiement est
+        confirmé après reste valable.
+      </p>
+    } @else {
+      <p>Les dates d’ouverture et de clôture sont précisées sur la page d’accueil du site (heure de Paris).</p>
+    }
+
+    <h2>Article 3 — Conditions de participation</h2>
+    <p>
+      Le jeu est ouvert à toute personne physique majeure (18 ans révolus à la date de la commande) résidant en France métropolitaine
+      (Corse comprise). La participation implique l’achat d’au moins un pack de produits et l’acceptation pleine et entière du présent
+      règlement. Toute information inexacte ou incomplète entraîne l’annulation des participations concernées.
+    </p>
+
+    <h2>Article 4 — Packs et participations</h2>
+    <p>Chaque pack de produits acheté donne droit au nombre de participations suivant :</p>
+    @if (game.packs(); as packs) {
+      <ul>
+        @for (p of packs; track p.code) {
+          <li>
+            <strong>{{ p.name }}</strong> ({{ formatEuros(p.priceCents) }} TTC) : donne droit à {{ plural(p.chances, 'participation') }}.
+          </li>
+        }
+      </ul>
+    } @else {
+      <p>Le détail des packs est présenté sur la page <a routerLink="/" fragment="participer">Participer</a>.</p>
+    }
+    <p>
+      Un numéro de participation unique et séquentiel est attribué à chaque participation dès la confirmation du paiement. Les frais de
+      livraison ne donnent pas droit à des participations.
+    </p>
+
+    <h2>Article 5 — Dotations</h2>
+    @if (game.prizes()?.length) {
+      <ul>
+        @for (prize of game.prizes()!; track prize.id) {
+          <li>
+            Lot n°{{ prize.rank }} : <app-todo [value]="prize.name" />
+            @if (prize.valueCents) { — valeur indicative {{ formatEuros(prize.valueCents) }} TTC }
+          </li>
+        }
+      </ul>
+    } @else {
+      <p><span class="badge-todo">À compléter</span> Liste et valeur des lots.</p>
+    }
+    <p>Les lots ne peuvent être ni échangés, ni repris, ni convertis en numéraire.</p>
+
+    <h2>Article 6 — Tirage au sort</h2>
+    <p>
+      À la clôture, l’Organisateur fige la liste des participations valides et la transmet au commissaire de justice sous forme d’un fichier
+      horodaté (une ligne par participation), accompagné de son empreinte SHA-256. Le tirage au sort est réalisé par le commissaire de justice
+      @if (game.game()?.drawAt) { le {{ formatDateLong(game.game()!.drawAt) }} } @else { à une date communiquée sur le site }.
+    </p>
+
+    <h2>Article 7 — Information des gagnants</h2>
+    <p>
+      Les gagnants sont informés par e-mail et/ou par téléphone dans un délai de <span class="badge-todo">À compléter</span> jours suivant le
+      tirage. Sans réponse dans un délai de <span class="badge-todo">À compléter</span> jours, le lot est <span class="badge-todo">À compléter</span>.
+    </p>
+
+    <h2>Article 8 — Reversement à l’association</h2>
+    <p>
+      {{ game.associationPercent() }} % du montant des packs vendus (hors frais de livraison), net des remboursements, sont reversés à
+      l’association {{ game.associationName() }}. Le montant collecté est affiché en continu sur la page d’accueil.
+    </p>
+
+    <h2>Article 9 — Rétractation, remboursement et annulation</h2>
+    <p>
+      Le remboursement d’une commande (notamment en cas d’exercice du droit de rétractation prévu aux
+      <a routerLink="/cgv">conditions générales de vente</a>) entraîne l’annulation des participations qui y sont attachées.
+    </p>
+
+    <h2>Article 10 — Données personnelles</h2>
+    <p>
+      Les données collectées sont nécessaires à la gestion des commandes et du jeu. Voir la
+      <a routerLink="/confidentialite">politique de confidentialité</a>.
+    </p>
+
+    <h2>Article 11 — Dépôt du règlement</h2>
+    <p>
+      Le règlement est déposé chez <app-todo [value]="game.game()?.bailiffName" />, commissaire de justice
+      (<app-todo [value]="game.game()?.bailiffDetails" />). Il est consultable gratuitement sur cette page.
+    </p>
+
+    <h2>Article 12 — Litiges</h2>
+    <p>Le présent règlement est soumis à la loi française. <span class="badge-todo">À compléter</span> (juridiction compétente, médiation).</p>
+  </article>
+</div>

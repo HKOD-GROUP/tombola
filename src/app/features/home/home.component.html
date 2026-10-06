@@ -1,0 +1,386 @@
+<!-- 1. HERO -->
+<section id="hero" class="bg-page" aria-labelledby="hero-titre">
+  <div class="container-page grid gap-5 pb-8 sm:pt-8 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-12 lg:py-12">
+    <div class="relative -mx-4 overflow-hidden bg-ink sm:mx-0 sm:rounded-lg">
+      @if (firstPrize()?.imageUrl) {
+        <img
+          [src]="firstPrize()!.imageUrl"
+          [alt]="'Lot n°1 : ' + firstPrize()!.name"
+          class="aspect-[4/3] w-full object-cover sm:aspect-[3/2]"
+          fetchpriority="high"
+        />
+      } @else {
+        <app-prize-visual class="aspect-[4/3] sm:aspect-[3/2]" [name]="'Lot n°1'" [rank]="1" />
+      }
+      @if (firstPrize(); as p) {
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 pb-3 pt-10 text-white sm:px-5">
+          <span class="rounded-[4px] bg-flame-500 px-2 py-0.5 text-[11.5px] font-bold uppercase tracking-wide">Lot n°1</span>
+          @if (!isPlaceholder(p.name)) {
+            <p class="mt-1.5 font-display text-[17px] font-extrabold uppercase italic leading-5">{{ p.name }}</p>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="text-center lg:text-left">
+      <p class="eyebrow mb-2">Jeu concours solidaire</p>
+      <h1 id="hero-titre" class="text-[30px] leading-[34px] sm:text-[36px] sm:leading-10 lg:text-5xl">
+        {{ game.gameName() }}
+        <span class="mt-1 block text-flame-500">
+          @if (prizeCount()) {
+            {{ plural(prizeCount(), 'lot') }} à gagner
+          } @else {
+            Des lots à gagner
+          }
+        </span>
+      </h1>
+      <p class="mx-auto mt-3 max-w-md text-ink-600 lg:mx-0">
+        Choisis un pack de produits : il te donne droit à des participations au tirage au sort.
+        <strong class="font-semibold text-ink">{{ game.associationPercent() }} %</strong> du montant des packs sont reversés à
+        l’association <strong class="font-semibold text-ink">{{ game.associationName() }}</strong>.
+      </p>
+      <a routerLink="/" fragment="participer" class="btn-go mt-5 w-full text-[15px] lg:hidden">Je participe +</a>
+      <a routerLink="/" fragment="participer" class="btn-primary mt-6 hidden px-10 text-[15px] lg:inline-flex">Je participe +</a>
+      <p class="mt-3 text-sm text-ink-500">À partir de {{ formatEuros(cheapest(), true) }} · Réservé aux majeurs · France métropolitaine</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2. ETAPES -->
+<section class="border-y border-dashed border-ink-300 bg-white" aria-label="Les 3 étapes pour participer">
+  <ol class="container-page grid max-w-[920px] gap-3 py-5 sm:grid-cols-3 sm:gap-6">
+    @for (s of [
+      { n: 1, t: 'Choisis ton pack', d: 'et ton nombre de participations' },
+      { n: 2, t: 'Choisis ta taille', d: 'du S au XXL' },
+      { n: 3, t: 'Valide ton achat', d: 'tu seras ajouté à la liste du tirage' }
+    ]; track s.n) {
+      <li class="flex items-center gap-3">
+        <span
+          class="flex h-9 w-9 shrink-0 -rotate-3 items-center justify-center rounded-md border-2 border-ink bg-ink font-display text-lg font-extrabold italic text-white shadow-[2px_2px_0_#A1A1AA]"
+          aria-hidden="true"
+          >{{ s.n }}</span
+        >
+        <div>
+          <p class="font-display text-[14px] font-extrabold uppercase italic leading-5"><span class="sr-only">Étape {{ s.n }} : </span>{{ s.t }}</p>
+          <p class="text-[12.5px] leading-4 text-ink-500">{{ s.d }}</p>
+        </div>
+      </li>
+    }
+  </ol>
+</section>
+
+<!-- 3. BUY-BOX -->
+<section id="participer" class="scroll-mt-16 bg-page py-8 sm:py-12" aria-labelledby="buybox-title">
+  <div class="container-page">
+    <app-buy-box />
+  </div>
+</section>
+
+<!-- 4. BADGE FLOTTANT -->
+@if (showFloating()) {
+  <a
+    routerLink="/"
+    fragment="participer"
+    class="on-dark fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 whitespace-nowrap rounded-lg border-2 border-white bg-black px-4 py-2.5 text-white no-underline shadow-lift hover:text-white lg:bottom-auto lg:left-auto lg:right-5 lg:top-1/2 lg:-translate-x-0 lg:-translate-y-1/2 lg:-rotate-2"
+  >
+    <span class="flex flex-col leading-tight">
+      <span class="font-display text-[15px] font-extrabold">Participe maintenant</span>
+      <span class="text-[12px] italic text-white/80">jusqu’à {{ plural(maxChances(), 'participation') }} !</span>
+    </span>
+    <span class="flex h-7 w-7 items-center justify-center rounded-full bg-go-600" aria-hidden="true">
+      <lucide-icon [img]="icPlus" [size]="16" />
+    </span>
+  </a>
+}
+
+<!-- 5. JEU ENCADRE -->
+<section class="bg-page py-12 sm:py-16" aria-labelledby="encadre-titre">
+  <div class="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+    <div class="order-2 lg:order-1">
+      <h2 id="encadre-titre">Jeu concours 100 % encadré</h2>
+      <p class="mt-2 text-ink-600">
+        Le règlement est déposé chez un commissaire de justice, qui contrôle le déroulement du jeu et réalise lui-même le tirage au sort.
+      </p>
+      <ul class="mt-6 space-y-5">
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icFile" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">Règlement déposé chez le commissaire de justice</h3>
+            <p class="text-sm text-ink-500">Conditions, dotations et déroulement du tirage, consultables gratuitement sur le site.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icCheck" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">Contrôle des lots</h3>
+            <p class="text-sm text-ink-500">Les lots et leur valeur indicative sont décrits au règlement, jusqu’à leur remise aux gagnants.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icGavel" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">Tirage au sort par le commissaire de justice</h3>
+            <p class="text-sm text-ink-500">À partir de la liste figée et horodatée de toutes les participations valides.</p>
+          </div>
+        </li>
+      </ul>
+      <a routerLink="/reglement" class="btn-primary mt-8 w-full sm:w-auto sm:min-w-[300px]">Voir le règlement</a>
+    </div>
+
+    <div class="order-1 lg:order-2">
+      <div class="on-dark relative flex aspect-square max-h-[380px] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-black p-8 text-center text-white sm:aspect-[4/3] lg:aspect-square">
+        <div class="absolute inset-4 rounded-md border border-dashed border-white/25" aria-hidden="true"></div>
+        <span class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white text-black">
+          <lucide-icon [img]="icGavel" [size]="30" aria-hidden="true" />
+        </span>
+        <p class="text-xs font-semibold uppercase tracking-[0.1em] text-white/60">Commissaire de justice</p>
+        <p class="mt-1 font-display text-[22px] font-extrabold uppercase italic leading-7">
+          @if (bailiff()) {
+            {{ bailiff() }}
+          } @else {
+            <span class="badge-todo align-middle not-italic">À compléter</span>
+          }
+        </p>
+        <p class="mt-2 max-w-[260px] text-sm text-white/70">Règlement déposé · tirage au sort réalisé sous son contrôle</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. LOTS -->
+<section class="on-dark bg-black pb-10 pt-12 text-white sm:pt-16" aria-labelledby="lots-titre">
+  <div class="container-page text-center">
+    <h2 id="lots-titre" class="!text-white">Les lots à gagner</h2>
+    <p class="mt-1 text-white/70">Tirés au sort par le commissaire de justice {{ drawLabel() }}.</p>
+  </div>
+
+  @if (game.prizes(); as prizes) {
+    @if (prizes.length) {
+      <ul
+        class="mx-auto mt-8 flex max-w-page snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:px-6 lg:grid lg:grid-cols-3 lg:overflow-visible"
+        aria-label="Lots"
+      >
+        @for (prize of prizes; track prize.id) {
+          <li class="w-[78%] shrink-0 snap-center overflow-hidden rounded-lg bg-[#1b1b1e] sm:w-[46%] lg:w-auto">
+            <div class="relative">
+              <app-prize-visual class="aspect-[4/3]" [imageUrl]="prize.imageUrl" [name]="prize.name" [rank]="prize.rank" />
+              <span class="absolute left-3 top-3 rounded-[4px] bg-white px-2 py-0.5 text-[11.5px] font-bold uppercase tracking-wide text-black">
+                Lot n°{{ prize.rank }}
+              </span>
+            </div>
+            <div class="p-4 text-left">
+              <h3 class="!text-white"><app-todo [value]="prize.name" /></h3>
+              @if (prize.description) {
+                <p class="mt-1 line-clamp-3 text-sm text-white/65"><app-todo [value]="prize.description" /></p>
+              }
+              @if (prize.valueCents) {
+                <p class="mt-3 inline-flex rounded-[4px] bg-white/10 px-2 py-1 text-[12.5px] font-semibold">Valeur indicative : {{ formatEuros(prize.valueCents) }}</p>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="container-page mt-6 text-center text-white/70">Les lots seront annoncés très bientôt.</p>
+    }
+  } @else {
+    <div class="container-page mt-8 grid gap-4 sm:grid-cols-3" aria-hidden="true">
+      @for (i of [0, 1, 2]; track i) {
+        <div class="h-72 animate-pulse rounded-lg bg-white/10"></div>
+      }
+    </div>
+  }
+
+  <div class="container-page mt-6 text-center">
+    <a routerLink="/" fragment="participer" class="btn-light min-w-[240px] italic">
+      <lucide-icon [img]="icTicket" [size]="17" aria-hidden="true" /> Participer
+    </a>
+  </div>
+</section>
+
+<!-- 7. BANDEAU DEFILANT -->
+<div class="on-dark overflow-hidden border-y border-white/15 bg-black py-3.5 text-white" role="region" aria-label="Nos engagements">
+  <p class="sr-only">{{ marquee().join(' · ') }}</p>
+  <div class="flex w-max animate-marquee motion-reduce:animate-none" aria-hidden="true">
+    @for (copy of [0, 1]; track copy) {
+      <ul class="flex shrink-0 items-center">
+        @for (m of marquee(); track m) {
+          <li class="flex items-center whitespace-nowrap px-5 font-display text-[16px] font-extrabold uppercase italic sm:text-[18px]">
+            {{ m }}
+            <span class="ml-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white text-[12px] not-italic">✓</span>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+
+<!-- 8. ASSOCIATION -->
+<section class="bg-white py-12 sm:py-16" aria-labelledby="asso-titre">
+  <div class="container-page grid grid-cols-1 gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:items-center lg:gap-14">
+    <div class="on-dark flex aspect-[16/9] items-center justify-center rounded-lg bg-black p-8 sm:aspect-[4/3] lg:aspect-square">
+      <img src="img/logo-les-oublies.png" [alt]="'Logo de l’association ' + game.associationName()" width="240" height="210" class="h-auto w-[60%] max-w-[240px]" loading="lazy" />
+    </div>
+    <div>
+      <p class="eyebrow mb-2">L’association</p>
+      <h2 id="asso-titre">{{ game.associationName() }}</h2>
+      <div class="mt-5 flex flex-wrap gap-x-10 gap-y-4">
+        <div>
+          <p class="font-display text-[36px] font-extrabold italic leading-10 tabular-nums text-go-700">
+            {{ game.game() ? formatEuros(game.game()!.associationRaisedCents) : '—' }}
+          </p>
+          <p class="text-sm text-ink-600">déjà collectés pour {{ game.associationName() }}</p>
+        </div>
+        <div>
+          <p class="font-display text-[36px] font-extrabold italic leading-10 tabular-nums">
+            {{ game.game() ? game.game()!.entriesCount.toLocaleString('fr-FR') : '—' }}
+          </p>
+          <p class="text-sm text-ink-600">participations enregistrées</p>
+        </div>
+      </div>
+      <p class="mt-5 max-w-xl text-ink-600">
+        {{ game.associationPercent() }} % du montant des packs vendus (hors frais de livraison) sont reversés à l’association. Le compteur
+        est mis à jour à chaque commande confirmée.
+      </p>
+      <p class="mt-3 max-w-xl text-sm text-ink-500">
+        <span class="badge-todo mr-1">À compléter</span>
+        <em>Texte provisoire :</em> présentation de l’association, de ses actions et de l’usage des fonds, à fournir par l’association.
+      </p>
+      <a routerLink="/le-jeu" class="btn-secondary mt-6">Découvrir l’association</a>
+    </div>
+  </div>
+</section>
+
+<!-- 9. COMMENT FONCTIONNENT LES PARTICIPATIONS -->
+<section class="bg-page py-12 sm:py-16" aria-labelledby="fonctionnement-titre">
+  <div class="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+    <!-- Illustration : liste du tirage floutee -->
+    <div class="overflow-hidden rounded-lg border border-line bg-white shadow-soft" aria-hidden="true">
+      <div class="on-dark flex items-center gap-3 bg-black px-4 py-3 text-white">
+        <span class="flex h-9 w-9 items-center justify-center rounded-md bg-flame-500"><lucide-icon [img]="icPackage" [size]="18" /></span>
+        <div>
+          <p class="font-display text-[14px] font-extrabold uppercase italic leading-5">Commande d’un pack</p>
+          <p class="text-[12px] text-white/70">4 participations = 4 fois ton nom dans la liste du tirage</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-[1fr_1.3fr_auto] gap-x-3 border-b border-line px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
+        <span>Participant</span><span>E-mail</span><span>N°</span>
+      </div>
+      <ul class="text-sm">
+        @for (row of [1, 2, 3, 4]; track row) {
+          <li class="grid grid-cols-[1fr_1.3fr_auto] items-center gap-x-3 border-b border-line px-4 py-2.5">
+            <span class="flex items-center gap-2 font-semibold"><span class="h-5 w-5 rounded-full bg-ink"></span>Toi</span>
+            <span class="text-ink-500">ton-adresse&#64;mail.fr</span>
+            <span class="rounded bg-go-50 px-1.5 font-mono text-[12px] font-semibold text-go-700">TMB-…{{ row }}</span>
+          </li>
+        }
+        @for (row of [1, 2, 3]; track row) {
+          <li class="grid grid-cols-[1fr_1.3fr_auto] items-center gap-x-3 border-b border-line px-4 py-2.5 blur-[3px]" [style.opacity]="1 - row * 0.25">
+            <span class="flex items-center gap-2"><span class="h-5 w-5 rounded-full bg-ink-300"></span><span class="h-2.5 w-20 rounded bg-ink-200"></span></span>
+            <span class="h-2.5 w-28 rounded bg-ink-200"></span>
+            <span class="h-2.5 w-12 rounded bg-ink-200"></span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 id="fonctionnement-titre">Comment fonctionnent les participations ?</h2>
+      <p class="mt-2 text-ink-600">
+        Chaque pack de produits donne droit à un nombre fixe de participations. À chaque participation correspond un numéro unique, et une
+        ligne à ton nom dans la liste remise au commissaire de justice pour le tirage.
+      </p>
+      <ul class="mt-6 space-y-5">
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icLayers" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">{{ game.packs()?.length ?? 4 }} packs pour participer</h3>
+            <p class="text-sm text-ink-500">Du porte-clés au pack complet, à partir de {{ formatEuros(cheapest(), true) }}, pour tous les budgets.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icTicket" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">{{ chancesList() }} participations</h3>
+            <p class="text-sm text-ink-500">Plus ton pack en contient, plus ton nom apparaît dans la liste du tirage.</p>
+          </div>
+        </li>
+      </ul>
+      <a routerLink="/" fragment="participer" class="btn-primary mt-8 w-full sm:w-auto sm:min-w-[300px]">Choisis ton pack</a>
+    </div>
+  </div>
+</section>
+
+<!-- 10. PRODUITS -->
+<section class="bg-page pb-12 sm:pb-16" aria-labelledby="produits-titre">
+  <div class="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+    <div class="order-2 lg:order-1">
+      <h2 id="produits-titre">Des produits faits avec le cœur</h2>
+      <p class="mt-2 text-ink-600">
+        Porte-clés, t-shirts et casquettes aux couleurs de l’association : des produits à garder, qui soutiennent une cause.
+      </p>
+      <ul class="mt-6 space-y-5">
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icShirt" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">T-shirts du S au XXL</h3>
+            <p class="text-sm text-ink-500">Une taille au choix pour chaque t-shirt de ton pack.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icHeart" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">Aux couleurs de l’association</h3>
+            <p class="text-sm text-ink-500">{{ game.associationPercent() }} % du montant de chaque pack reversés à {{ game.associationName() }}.</p>
+          </div>
+        </li>
+        <li class="flex gap-4">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-white shadow-soft"><lucide-icon [img]="icTruck" [size]="20" aria-hidden="true" /></span>
+          <div>
+            <h3 class="font-sans text-[15px] font-bold normal-case not-italic">Livrés chez toi</h3>
+            <p class="text-sm text-ink-500">
+              En France métropolitaine{{ game.game() ? ', forfait de ' + formatEuros(game.game()!.shippingFeeCents) + ' par commande' : '' }}.
+            </p>
+          </div>
+        </li>
+      </ul>
+      <a routerLink="/" fragment="participer" class="btn-primary mt-8 w-full sm:w-auto sm:min-w-[300px]">Choisis ton pack</a>
+    </div>
+    <div class="order-1 lg:order-2">
+      <img
+        [src]="productPhoto"
+        alt="T-shirt noir vu de dos, imprimé « Un toit solidaire »"
+        class="mx-auto aspect-square w-full max-w-[480px] rounded-lg border border-line bg-white object-contain"
+        width="480"
+        height="480"
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- 11. FAQ -->
+<section class="border-t border-line bg-white py-12 sm:py-16" aria-labelledby="faq-titre">
+  <div class="container-page max-w-[720px]">
+    <h2 id="faq-titre" class="text-center">Questions fréquentes</h2>
+    <p class="mt-2 text-center text-ink-500">Tout ce qu’il faut savoir avant de participer.</p>
+    @for (group of faq(); track group.title) {
+      <h3 class="mb-2 mt-10 text-[16px]">{{ group.title }}</h3>
+      <div class="border-t border-line">
+        @for (item of group.items; track item.q) {
+          <details class="faq-item group border-b border-line">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 py-4 text-[15px] font-semibold text-ink hover:text-ink-700">
+              {{ item.q }}
+              <span class="faq-plus flex h-6 w-6 shrink-0 items-center justify-center text-xl leading-none transition-transform" aria-hidden="true">+</span>
+            </summary>
+            <p class="-mt-1 pb-4 pr-8 text-sm leading-6 text-ink-600">{{ item.a }}</p>
+          </details>
+        }
+      </div>
+    }
+    <p class="mt-8 text-center text-sm text-ink-500">
+      Une autre question ? Consulte le <a routerLink="/reglement">règlement du jeu</a> ou retrouve tes commandes dans
+      <a routerLink="/mes-participations">Mes participations</a>.
+    </p>
+  </div>
+</section>

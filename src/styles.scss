@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Repli metrique d'Inter : pas de saut de mise en page au swap de la police.
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('ArialMT');
+  size-adjust: 107.4%;
+  ascent-override: 90.2%;
+  descent-override: 22.5%;
+  line-gap-override: 0%;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 72px;
+  }
+
+  body {
+    @apply bg-page font-sans text-base text-ink antialiased;
+    min-height: 100vh;
+  }
+
+  /* Titres : Mona Sans gras, italique, majuscules (tailles moderees). */
+  h1, h2, h3, .font-display {
+    font-family: theme('fontFamily.display');
+  }
+  h1, h2, h3, .title {
+    @apply font-display font-extrabold uppercase italic text-ink;
+    letter-spacing: -0.005em;
+  }
+
+  h1 { @apply text-[26px] leading-[30px] sm:text-4xl; }
+  h2 { @apply text-[22px] leading-[26px] sm:text-3xl; }
+  h3 { @apply text-[15px] leading-5; }
+
+  a { @apply text-ink underline decoration-ink-300 underline-offset-2; }
+  a:hover { @apply decoration-ink; }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.ink.DEFAULT');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .on-dark :focus-visible,
+  .on-dark:focus-visible {
+    outline-color: #fff;
+  }
+
+  ::selection { background: theme('colors.ink.900'); color: #fff; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-page px-4 sm:px-6;
+  }
+
+  /* ---------- Boutons ---------- */
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-[6px] px-5 py-2.5 text-center font-display text-[14px] font-extrabold uppercase leading-tight tracking-[0.01em] no-underline transition duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+    min-height: 46px;
+  }
+  .btn-primary {
+    @apply btn text-white hover:text-white;
+    background: linear-gradient(180deg, #2f2f33 0%, #000 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+  .btn-primary:hover:not(:disabled) { background: linear-gradient(180deg, #45454b 0%, #111 100%); }
+  .btn-go {
+    @apply btn bg-go-600 text-white hover:bg-go-700 hover:text-white;
+  }
+  .btn-light {
+    @apply btn text-ink hover:text-ink;
+    background: linear-gradient(180deg, #ffffff 0%, #dcdcdc 100%);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  .btn-light:hover:not(:disabled) { background: linear-gradient(180deg, #ffffff 0%, #ececec 100%); }
+  .btn-secondary { @apply btn border border-ink-300 bg-white text-ink hover:border-ink hover:text-ink; }
+  .btn-ghost { @apply btn font-sans normal-case tracking-normal text-ink-600 hover:bg-ink-100 hover:text-ink; font-weight: 600; }
+  .btn-danger { @apply btn bg-danger-600 text-white hover:bg-danger-700 hover:text-white; }
+  .btn-sm { min-height: 36px; @apply px-3.5 py-1.5 text-[12.5px]; }
+
+  /* ---------- Surfaces ---------- */
+  .card { @apply rounded-card border border-line bg-white; }
+
+  /* ---------- Formulaires ---------- */
+  .label { @apply mb-1.5 block text-sm font-semibold text-ink-700; }
+  .input {
+    @apply block w-full rounded-[6px] border border-ink-200 bg-white px-3.5 py-2.5 text-[15px] text-ink transition-shadow placeholder:text-ink-400;
+    min-height: 46px;
+  }
+  .input:focus { @apply border-ink outline-none; box-shadow: 0 0 0 3px rgba(20, 20, 22, 0.12); }
+  .input.ng-invalid.ng-touched { @apply border-danger-600; }
+  .field-error { @apply mt-1 text-sm text-danger-600; }
+  .hint { @apply mt-1 text-xs text-ink-500; }
+
+  .checkbox {
+    @apply mt-0.5 h-[18px] w-[18px] shrink-0 rounded border-ink-300 accent-ink;
+  }
+
+  /* ---------- Pastilles ---------- */
+  .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+  .badge-todo { @apply badge bg-flame-50 text-flame-700; }
+  .badge-go { @apply badge bg-go-50 text-go-700; }
+  .badge-dark { @apply badge bg-ink text-white; }
+  .badge-ink { @apply badge bg-ink-100 text-ink-600; }
+  .badge-danger { @apply badge bg-danger-50 text-danger-600; }
+
+  /* Pastille verte « Une participation revient à… », « Livraison offerte ». */
+  .pill-go { @apply inline-flex items-center gap-1.5 rounded-[4px] bg-go-50 px-2 py-1 text-[12.5px] font-semibold leading-4 text-go-700; }
+
+  .alert { @apply rounded-[6px] border px-4 py-3 text-sm; }
+  .alert-error { @apply alert border-danger-200 bg-danger-50 text-danger-700; }
+  .alert-info { @apply alert border-ink-200 bg-white text-ink-700; }
+  .alert-success { @apply alert border-go-200 bg-go-50 text-go-800; }
+
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.08em] text-ink-500; }
+
+  /* Titre de page standard (pages secondaires). */
+  .page-head { @apply border-b border-line bg-white; }
+
+  /* Pages de texte (reglement, mentions, CGV, confidentialite). */
+  .prose-legal { @apply max-w-[720px] text-[15px] leading-[1.7] text-ink-700; }
+  .prose-legal h2 { @apply mb-2 mt-8 text-[17px] leading-6; }
+  .prose-legal h3 { @apply mb-1 mt-5 text-[14px]; }
+  .prose-legal p { @apply mb-3; }
+  .prose-legal ul { @apply mb-3 list-disc pl-5; }
+  .prose-legal li { @apply mb-1; }
+
+  .table-admin { @apply w-full border-collapse text-sm; }
+  .table-admin th { @apply border-b border-line px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-ink-500; }
+  .table-admin td { @apply border-b border-line/70 px-3 py-2.5 align-top; }
+  .table-admin tr:hover td { @apply bg-ink-50; }
+
+  .sr-only-focusable:not(:focus) { @apply sr-only; }
+
+  .spin { animation: tmb-spin 0.9s linear infinite; }
+
+  /* Accordeons FAQ (<details>/<summary>). */
+  .faq-item summary { list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item[open] .faq-plus { transform: rotate(45deg); }
+}
+
+@keyframes tmb-spin {
+  to { transform: rotate(360deg); }
+}

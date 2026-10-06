@@ -1,0 +1,26 @@
+# Overrides DEV du chart angular-app — déployé sur dev.tombola.fr.
+# Usage : helm upgrade --install tombola-dev .helm-chart/angular-app -f .helm-chart/angular-app/values-dev.yaml
+# Le reste des valeurs vient de values.yaml. L'image dev est buildée avec
+# --build-arg NG_CONFIG=dev (apiBaseUrl = https://dev-api.hkodgroup.com).
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/hermann93360/tombola
+  tag: "dev" # écrasé par le workflow (--set image.tag=dev-<sha>)
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: dev.tombola.fr
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - dev.tombola.fr
+      secretName: dev-tombola-tls

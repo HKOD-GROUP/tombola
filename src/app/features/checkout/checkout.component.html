@@ -1,0 +1,185 @@
+<div class="container-page pb-12 pt-8">
+  <a routerLink="/" fragment="panier" class="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-600 no-underline hover:text-ink">
+    <lucide-icon [img]="icBack" [size]="16" aria-hidden="true" /> Retour au panier
+  </a>
+  <h1 class="mb-1">Ma commande</h1>
+  <p class="mb-6 text-ink-600">Étape 1 sur 2 — vos coordonnées. Aucun compte à créer.</p>
+
+  @if (pending(); as p) {
+    <div class="alert-info mb-6 flex flex-wrap items-center justify-between gap-3">
+      <span>Une commande ({{ p.reference }}) attend encore votre paiement.</span>
+      <a [routerLink]="['/commande/paiement', p.reference]" class="btn-secondary btn-sm">Reprendre le paiement</a>
+    </div>
+  }
+
+  @if (!ready()) {
+    <div class="card h-64 animate-pulse bg-ink-100" aria-hidden="true"></div>
+  } @else if (cart.isEmpty()) {
+    <div class="card p-6 text-center">
+      <p class="mb-4 text-ink-700">Votre panier est vide.</p>
+      <a routerLink="/" fragment="participer" class="btn-primary">Choisir un pack</a>
+    </div>
+  } @else {
+    <div class="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-6">
+        <fieldset class="card p-5 sm:p-6">
+          <legend class="sr-only">Identité</legend>
+          <h2 class="mb-1 text-xl">Vos informations</h2>
+          <p class="mb-5 text-sm text-ink-600">Elles servent à la livraison et à vous identifier en cas de gain. Jeu réservé aux personnes majeures.</p>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="label" for="firstName">Prénom</label>
+              <input id="firstName" class="input" formControlName="firstName" autocomplete="given-name" [attr.aria-invalid]="show('firstName')" aria-describedby="firstName-err" />
+              @if (show('firstName') || serverError('firstName')) {
+                <p id="firstName-err" class="field-error">{{ serverError('firstName') ?? 'Indiquez votre prénom.' }}</p>
+              }
+            </div>
+            <div>
+              <label class="label" for="lastName">Nom</label>
+              <input id="lastName" class="input" formControlName="lastName" autocomplete="family-name" [attr.aria-invalid]="show('lastName')" aria-describedby="lastName-err" />
+              @if (show('lastName') || serverError('lastName')) {
+                <p id="lastName-err" class="field-error">{{ serverError('lastName') ?? 'Indiquez votre nom.' }}</p>
+              }
+            </div>
+            <div>
+              <label class="label" for="birthDate">Date de naissance</label>
+              <input id="birthDate" type="date" class="input" formControlName="birthDate" autocomplete="bday" max="2100-12-31" [attr.aria-invalid]="show('birthDate')" aria-describedby="birthDate-err birthDate-hint" />
+              <p id="birthDate-hint" class="hint">Vous devez avoir 18 ans révolus.</p>
+              @if (show('birthDate') || serverError('birthDate')) {
+                <p id="birthDate-err" class="field-error">
+                  @if (form.controls.birthDate.hasError('underage')) {
+                    La participation est réservée aux personnes majeures.
+                  } @else if (form.controls.birthDate.hasError('birthDate')) {
+                    Date de naissance invalide.
+                  } @else {
+                    {{ serverError('birthDate') ?? 'Indiquez votre date de naissance.' }}
+                  }
+                </p>
+              }
+            </div>
+            <div>
+              <label class="label" for="phone">Téléphone</label>
+              <input id="phone" type="tel" class="input" formControlName="phone" autocomplete="tel" inputmode="tel" placeholder="06 12 34 56 78" [attr.aria-invalid]="show('phone')" aria-describedby="phone-err" />
+              @if (show('phone') || serverError('phone')) {
+                <p id="phone-err" class="field-error">{{ serverError('phone') ?? 'Indiquez un numéro de téléphone français valide.' }}</p>
+              }
+            </div>
+            <div class="sm:col-span-2">
+              <label class="label" for="email">Adresse e-mail</label>
+              <input id="email" type="email" class="input" formControlName="email" autocomplete="email" inputmode="email" [attr.aria-invalid]="show('email')" aria-describedby="email-err email-hint" />
+              <p id="email-hint" class="hint">Vos numéros de participation vous seront envoyés à cette adresse.</p>
+              @if (show('email') || serverError('email')) {
+                <p id="email-err" class="field-error">{{ serverError('email') ?? 'Indiquez une adresse e-mail valide.' }}</p>
+              }
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="card p-5 sm:p-6">
+          <legend class="sr-only">Adresse de livraison</legend>
+          <h2 class="mb-1 text-xl">Adresse de livraison</h2>
+          <p class="mb-5 text-sm text-ink-600">France métropolitaine uniquement (Corse comprise).</p>
+          <div class="grid gap-4 sm:grid-cols-6">
+            <div class="sm:col-span-6">
+              <label class="label" for="addressLine1">Adresse</label>
+              <input id="addressLine1" class="input" formControlName="addressLine1" autocomplete="address-line1" [attr.aria-invalid]="show('addressLine1')" aria-describedby="addressLine1-err" />
+              @if (show('addressLine1') || serverError('addressLine1')) {
+                <p id="addressLine1-err" class="field-error">{{ serverError('addressLine1') ?? 'Indiquez votre adresse.' }}</p>
+              }
+            </div>
+            <div class="sm:col-span-6">
+              <label class="label" for="addressLine2">Complément d’adresse <span class="font-normal text-ink-500">(facultatif)</span></label>
+              <input id="addressLine2" class="input" formControlName="addressLine2" autocomplete="address-line2" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="label" for="postalCode">Code postal</label>
+              <input id="postalCode" class="input" formControlName="postalCode" autocomplete="postal-code" inputmode="numeric" maxlength="5" [attr.aria-invalid]="show('postalCode')" aria-describedby="postalCode-err" />
+              @if (show('postalCode') || serverError('postalCode')) {
+                <p id="postalCode-err" class="field-error">
+                  @if (form.controls.postalCode.hasError('postalCodeArea')) {
+                    Livraison en France métropolitaine uniquement.
+                  } @else {
+                    {{ serverError('postalCode') ?? 'Code postal à 5 chiffres.' }}
+                  }
+                </p>
+              }
+            </div>
+            <div class="sm:col-span-4">
+              <label class="label" for="city">Ville</label>
+              <input id="city" class="input" formControlName="city" autocomplete="address-level2" [attr.aria-invalid]="show('city')" aria-describedby="city-err" />
+              @if (show('city') || serverError('city')) {
+                <p id="city-err" class="field-error">{{ serverError('city') ?? 'Indiquez votre ville.' }}</p>
+              }
+            </div>
+            <div class="sm:col-span-6">
+              <p class="text-sm text-ink-600">Pays : <span class="font-medium text-ink">France</span></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="card space-y-4 p-5 sm:p-6">
+          <legend class="sr-only">Engagements</legend>
+          <label class="flex gap-3 text-sm text-ink-700">
+            <input type="checkbox" class="checkbox" formControlName="acceptRules" [attr.aria-invalid]="show('acceptRules')" />
+            <span>
+              J’ai lu et j’accepte le <a routerLink="/reglement" target="_blank">règlement du jeu</a> et les
+              <a routerLink="/cgv" target="_blank">conditions générales de vente</a>.
+            </span>
+          </label>
+          @if (show('acceptRules')) {
+            <p class="field-error -mt-2 pl-8">Merci d’accepter le règlement pour continuer.</p>
+          }
+          <label class="flex gap-3 text-sm text-ink-700">
+            <input type="checkbox" class="checkbox" formControlName="certifyAccurate" [attr.aria-invalid]="show('certifyAccurate')" />
+            <span>Je certifie l’exactitude des informations saisies et être âgé(e) de 18 ans ou plus.</span>
+          </label>
+          @if (show('certifyAccurate')) {
+            <p class="field-error -mt-2 pl-8">Merci de certifier l’exactitude de vos informations.</p>
+          }
+          <label class="flex gap-3 text-sm text-ink-700">
+            <input type="checkbox" class="checkbox" formControlName="marketingOptIn" />
+            <span>J’accepte de recevoir des nouvelles des prochaines opérations solidaires (facultatif, désinscription à tout moment).</span>
+          </label>
+        </fieldset>
+
+        @if (error()) {
+          <div id="erreur-commande" class="alert-error" role="alert" tabindex="-1">
+            {{ error() }}
+            @if (stockProblem()) {
+              <a routerLink="/" fragment="panier" class="ml-1 font-semibold">Modifier mon panier</a>
+            }
+          </div>
+        }
+
+        <div class="lg:hidden">
+          <div class="card p-5">
+            <h2 class="mb-1 text-lg">Récapitulatif</h2>
+            <app-cart-summary [editable]="false" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary w-full sm:w-auto sm:px-8" [disabled]="submitting()">
+          @if (submitting()) {
+            <lucide-icon [img]="icLoader" [size]="18" class="spin" aria-hidden="true" /> Réservation de vos articles…
+          } @else {
+            <lucide-icon [img]="icLock" [size]="17" aria-hidden="true" /> Passer au paiement · {{ formatEuros(totals().totalCents) }}
+          }
+        </button>
+        <p class="text-xs text-ink-500">
+          Vos articles sont réservés pendant 30 minutes, le temps de régler votre commande.
+          Vos données sont traitées conformément à notre <a routerLink="/confidentialite">politique de confidentialité</a>.
+        </p>
+      </form>
+
+      <aside class="hidden lg:block" aria-labelledby="recap-titre">
+        <div class="card sticky top-24 p-5">
+          <div class="mb-1 flex items-center justify-between">
+            <h2 id="recap-titre" class="text-lg">Récapitulatif</h2>
+            <a routerLink="/" fragment="panier" class="text-sm">Modifier</a>
+          </div>
+          <app-cart-summary [editable]="false" />
+        </div>
+      </aside>
+    </div>
+  }
+</div>

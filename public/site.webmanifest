@@ -1,0 +1,14 @@
+{
+  "name": "Tombola solidaire",
+  "short_name": "Tombola",
+  "description": "Des packs de produits qui donnent droit à des participations au tirage. 10 % reversés à l’association Les enfants oubliés.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F5F5",
+  "theme_color": "#000000",
+  "lang": "fr",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
